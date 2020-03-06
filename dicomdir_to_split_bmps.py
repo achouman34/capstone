@@ -98,17 +98,25 @@ def standard_deviation():
         shutil.rmtree("STD DEV")
         os.mkdir("STD DEV")
 
+    windows = np.empty([output_frame_count, all_images.shape[1], all_images.shape[2], all_images.shape[3]])
     for window in range(1, output_frame_count + 1):
         os.mkdir(join("STD DEV", f"Frame {str(window).zfill(2)}"))
-        output_images = np.zeros([all_images.shape[1], all_images.shape[2], all_images.shape[3]])
+        output_images = np.empty([all_images.shape[1], all_images.shape[2], all_images.shape[3]])
         for x in range(all_images.shape[2]):
             for y in range(all_images.shape[3]):
                 for slice_number in range(all_images.shape[1]):
                     output_images[slice_number, x, y] = np.std(all_images[STD_DEV_ACROSS_N_FRAMES * (window - 1):
                                                                           STD_DEV_ACROSS_N_FRAMES * window,
                                                                           slice_number, x, y])
-        for slice_number in range(output_images.shape[0]):
-            imageio.imwrite(join("STD DEV", f"Frame {str(window).zfill(2)}", f"Slice {str(slice_number + 1).zfill(3)}.bmp"), output_images[slice_number, :, :])
+        windows[window-1] = output_images
+
+    windows *= 255.0/windows.max()
+    windows = uint8(windows)
+    
+    for window in range(output_frame_count):
+        for slice_number in range(all_images.shape[1]):
+            imageio.imwrite(join("STD DEV", f"Frame {str(window+1).zfill(2)}", f"Slice {str(slice_number+1).zfill(3)}.bmp"),
+                            windows[window,slice_number])
 
 def main():
     dicom_to_bmp()
