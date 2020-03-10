@@ -1,5 +1,4 @@
 import os
-import sys
 import shutil
 from os.path import join
 import imageio
@@ -7,9 +6,14 @@ import pydicom
 from numpy import uint8
 import numpy as np
 
-DICOMDIR_PATH = sys.argv[5]
-DESIRED_SERIES = sys.argv[6]
-STD_DEV_ACROSS_N_FRAMES = int(sys.argv[7])
+HEIGHT_IN_PIXELS = 1024
+WIDTH_IN_PIXELS = 1024
+IMAGE_ROWS = 8
+IMAGE_COLS = 8
+
+DICOMDIR_PATH = "C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/S27"
+DESIRED_SERIES = "DTI1"
+STD_DEV_ACROSS_N_FRAMES = 10
 
 
 def dicom_to_bmp():
@@ -18,15 +22,18 @@ def dicom_to_bmp():
             if file == "dicomdir":
                 dataset = pydicom.dcmread(join(root, file))
                 break
-
-    for patient_record in dataset.patient_records:
-        studies = patient_record.children
-        for study in studies:
-            all_series = study.children
-            for series in all_series:
-                if series.SeriesDescription == DESIRED_SERIES:
-                    image_records = series.children
-                    break
+            
+    image_records = None
+    
+    patient_record = dataset.patient_records[0]
+    study = patient_record.children[0]
+    all_series = study.children
+    for series in all_series:
+        if series.SeriesDescription == DESIRED_SERIES:
+            image_records = series.children
+            break
+    
+    if image_records is None: raise IOError
 
     image_filenames = [join(DICOMDIR_PATH, *image_rec.ReferencedFileID)
                        for image_rec in image_records]
@@ -45,13 +52,9 @@ def dicom_to_bmp():
 
 
 def grid_images_to_folders():
-    height_in_pixels = int(sys.argv[1])
-    width_in_pixels = int(sys.argv[2])
-    image_rows = int(sys.argv[3])
-    image_cols = int(sys.argv[4])
-
-    istep = height_in_pixels//image_rows
-    jstep = width_in_pixels//image_cols
+    
+    istep = HEIGHT_IN_PIXELS//IMAGE_ROWS
+    jstep = WIDTH_IN_PIXELS//IMAGE_COLS
 
     try:
         os.mkdir("Split BMPs")
@@ -67,8 +70,8 @@ def grid_images_to_folders():
 
                 os.mkdir(f"Split BMPs/Frame {str(frame_number).zfill(3)}")
                 slice_number = 1
-                for i in range(0, height_in_pixels, istep):
-                    for j in range(0, width_in_pixels, jstep):
+                for i in range(0, HEIGHT_IN_PIXELS, istep):
+                    for j in range(0, WIDTH_IN_PIXELS, jstep):
                         imageio.imwrite(join(os.getcwd(), "Split BMPs",
                                              f"Frame {str(frame_number).zfill(3)}",
                                              f"Slice {str(slice_number).zfill(3)}.bmp"),
@@ -78,19 +81,14 @@ def grid_images_to_folders():
 
 
 def standard_deviation():
-    all_images = []
+    frames = []
+    
     for root, folders, _ in os.walk("Split BMPs"):
         for folder in folders:
             if folder.startswith("Frame"):
-                current_frame = []
-                for root2, _, image_files in os.walk(join(root, folder)):
-                    for image_file in image_files:
-                        current_frame.append(
-                            imageio.imread(join(root2, image_file)))
-                    all_images.append(current_frame)
-    all_images = np.array(all_images)
+                frames.append(join(root, folder))
 
-    output_frame_count = all_images.shape[0] // STD_DEV_ACROSS_N_FRAMES
+    output_frame_count = len(frames) // STD_DEV_ACROSS_N_FRAMES
 
     try:
         os.mkdir("STD DEV")
@@ -98,25 +96,31 @@ def standard_deviation():
         shutil.rmtree("STD DEV")
         os.mkdir("STD DEV")
 
-    windows = np.empty([output_frame_count, all_images.shape[1], all_images.shape[2], all_images.shape[3]])
     for window in range(1, output_frame_count + 1):
-        os.mkdir(join("STD DEV", f"Frame {str(window).zfill(2)}"))
-        output_images = np.empty([all_images.shape[1], all_images.shape[2], all_images.shape[3]])
-        for x in range(all_images.shape[2]):
-            for y in range(all_images.shape[3]):
-                for slice_number in range(all_images.shape[1]):
-                    output_images[slice_number, x, y] = np.std(all_images[STD_DEV_ACROSS_N_FRAMES * (window - 1):
-                                                                          STD_DEV_ACROSS_N_FRAMES * window,
-                                                                          slice_number, x, y])
-        windows[window-1] = output_images
-
-    windows *= 255.0/windows.max()
-    windows = uint8(windows)
-    
-    for window in range(output_frame_count):
-        for slice_number in range(all_images.shape[1]):
-            imageio.imwrite(join("STD DEV", f"Frame {str(window+1).zfill(2)}", f"Slice {str(slice_number+1).zfill(3)}.bmp"),
-                            windows[window,slice_number])
+        window_images = []
+        for frame in frames[STD_DEV_ACROSS_N_FRAMES * (window - 1) : STD_DEV_ACROSS_N_FRAMES * window]:
+            frame_images = []
+            for root, _, slices in os.walk(frame):
+                for slic in slices:
+                    if slic.endswith(".bmp"):
+                        frame_images.append(imageio.imread(join(root, slic)))
+            window_images.append(frame_images)
+            
+        window_images = np.array(window_images)
+        output_images = np.empty(window_images.shape[1:])
+        
+        os.mkdir(join("STD DEV", f"Frame {str(window).zfill(3)}"))
+        
+        for slice_number in range(output_images.shape[0]):
+            for y in range(output_images.shape[1]):
+                for x in range(output_images.shape[2]):
+                    output_images[slice_number, y, x] = np.std(window_images[:, slice_number, y, x])
+                    
+        output_images *= 255.0/output_images.max()
+        output_images = uint8(output_images)
+                    
+        for slice_number in range(output_images.shape[0]):
+            imageio.imwrite(join("STD DEV", f"Frame {str(window).zfill(3)}", f"Slice {str(slice_number + 1).zfill(3)}.bmp"), output_images[slice_number])
 
 def main():
     dicom_to_bmp()
