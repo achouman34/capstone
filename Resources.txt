@@ -1,0 +1,16 @@
+https://www.dropbox.com/s/chrugp2j2as5gop/ImageRegistration_Slicer4.8_SoniaPujol.pdf?dl=0
+https://www.dropbox.com/s/m7rzeblbdzr49bc/DiffusionMRIAnalysis_Slicer4.8_SoniaPujol.pdf?dl=0%7C
+https://www.slicer.org/w/index.php/Documentation/Nightly/ScriptRepository#Get_value_of_a_volume_at_specific_voxel_coordinates
+
+Josh
+https://www.slicer.org/wiki/Documentation/4.10/Training#Slicer4_Diffusion_Tensor_Imaging_Tutorial
+https://www.slicer.org/wiki/Documentation/4.3/Modules/ModelMaker
+*https://www.slicer.org/wiki/Documentation/4.1/Developers/Python_scripting
+*https://www.slicer.org/wiki/Documentation/Nightly/Developers/Python_scripting#Accessing_Model_data_as_numpy_array
+*https://www.slicer.org/wiki/Documentation/4.6/Developers/Python_scripting#Script_Repository
+**https://www.slicer.org/wiki/Documentation/Nightly/ScriptRepository
+**https://www.slicer.org/wiki/Documentation/4.10/ScriptRepository#Clone_a_node
+**https://www.slicer.org/wiki/Documentation/Nightly/Developers/Python_scripting
+*https://www.na-mic.org/wiki/2013_Project_Week_Breakout_Session:Slicer4Python
+https://www.slicer.org/w/index.php/Documentation/Nightly/ScriptRepository#Get_value_of_a_volume_at_specific_voxel_coordinates
+https://docs.google.com/presentation/d/1JXIfs0rAM7DwZAho57Jqz14MRn2BIMrjB17Uj_7Yztc/edit#slide=id.g1363d5232e_0_0
