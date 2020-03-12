@@ -7,7 +7,6 @@ segmentEditorWidgets = []
 effects = []
 surfaceMeshes = []
 addedSegmentIDs = []
-normalses = []
 for folder in os.listdir(results_dir):
     volumeNodes.append(slicer.util.loadVolume(f"{results_dir}/{folder}/Slice 001.bmp"))
 
@@ -51,7 +50,7 @@ for segmentationNode in segmentationNodes:
 
 # Make sure surface mesh cells are consistently oriented
 for num, segmentationNode in enumerate(segmentationNodes):
-    surfaceMesh = segmentationNode.GetClosedSurfaceInternalRepresentation(addedSegmentID[num])
+    surfaceMesh = segmentationNode.GetClosedSurfaceInternalRepresentation(addedSegmentIDs[num])
     normals = vtk.vtkPolyDataNormals()
     normals.AutoOrientNormalsOn()
     normals.ConsistencyOn()
@@ -62,13 +61,8 @@ for num, segmentationNode in enumerate(segmentationNodes):
 
 # Write to OBJ file
 for num, surfaceMesh in enumerate(surfaceMeshes, 1):
+    filename = f"C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/OBJs/test{num}.obj"
     writer = vtk.vtkOBJWriter()
     writer.SetInputData(surfaceMesh)
-    writer.SetFileName(f"C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/OBJs/test{num}.obj")
+    writer.SetFileName(filename)
     writer.Update()
-    writer.Write()
-
-
-writer = vtk.vtkSTLWriter()
-writer.SetInputData(surfaceMeshes[0])
-writer.Update()
