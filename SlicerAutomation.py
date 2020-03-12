@@ -1,67 +1,54 @@
 import os
-results_dir = "C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/STD DEV"
-volumeNodes = []
-segmentationNodes = []
-segmentEditorNodes = []
-segmentEditorWidgets = []
-effects = []
-surfaceMeshes = []
-addedSegmentIDs = []
-for folder in os.listdir(results_dir):
-    volumeNodes.append(slicer.util.loadVolume(f"{results_dir}/{folder}/Slice 001.bmp"))
+import shutil
+INPUT_PATH = "C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/STD DEV"
+OUTPUT_PATH = "C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/"
+MIN_THRES = str(175)
+MAX_THRES = str(255) 
 
-for num, volumeNode in enumerate(volumeNodes, 1):
+volumeNodes = []
+for folder in os.listdir(INPUT_PATH):
+    volumeNodes.append(slicer.util.loadVolume(f"{INPUT_PATH}/{folder}/Slice 001.bmp"))
+
+try:
+    os.mkdir(os.path.join(OUTPUT_PATH, "OBJs"))
+except FileExistsError:
+    shutil.rmtree(os.path.join(OUTPUT_PATH, "OBJs"))
+    os.mkdir(os.path.join(OUTPUT_PATH, "OBJs"))
+
+for num, volumeNode in enumerate(volumeNodes):
     # Create segmentation
     segmentationNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentationNode")
     segmentationNode.CreateDefaultDisplayNodes() # only needed for display
     segmentationNode.SetReferenceImageGeometryParameterFromVolumeNode(volumeNode)
     addedSegmentID = segmentationNode.GetSegmentation().AddEmptySegment(f"test{num}")
-    segmentationNodes.append(segmentationNode)
-    addedSegmentIDs.append(addedSegmentID)
-
-# Create segment editor to get access to effects
-for num, segmentationNode in enumerate(segmentationNodes):
+    # Create segment editor to get access to effects
     segmentEditorWidget = slicer.qMRMLSegmentEditorWidget()
     segmentEditorWidget.setMRMLScene(slicer.mrmlScene)
     segmentEditorNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentEditorNode")
     segmentEditorWidget.setMRMLSegmentEditorNode(segmentEditorNode)
-    segmentEditorWidget.setSegmentationNode(segmentationNodes[num])
-    segmentEditorWidget.setMasterVolumeNode(volumeNodes[num])
-    segmentEditorWidgets.append(segmentEditorWidget)
-    segmentEditorNodes.append(segmentEditorNode)
-
-# Thresholding
-for num, segmentEditorNode in enumerate(segmentEditorNodes):
-    segmentEditorWidgets[num].setActiveEffectByName("Threshold")
-    effect = segmentEditorWidgets[num].activeEffect()
-    effect.setParameter("MinimumThreshold","175")
-    effect.setParameter("MaximumThreshold","254")
+    segmentEditorWidget.setSegmentationNode(segmentationNode)
+    segmentEditorWidget.setMasterVolumeNode(volumeNode)
+    # Thresholding
+    segmentEditorWidget.setActiveEffectByName("Threshold")
+    effect = segmentEditorWidget.activeEffect()
+    effect.setParameter("MinimumThreshold", MIN_THRES)
+    effect.setParameter("MaximumThreshold", MAX_THRES)
     effect.self().onApply()
-    effects.append(effect)
-
-# Clean up
-del segmentEditorWidgets
-for segmentEditorNode in segmentEditorNodes:
+    # Clean up
+    segmentEditorWidget = None
     slicer.mrmlScene.RemoveNode(segmentEditorNode)
-
-# Make segmentation results visible in 3D
-for segmentationNode in segmentationNodes:
+    # Make segmentation results visible in 3D
     segmentationNode.CreateClosedSurfaceRepresentation()
-
-# Make sure surface mesh cells are consistently oriented
-for num, segmentationNode in enumerate(segmentationNodes):
-    surfaceMesh = segmentationNode.GetClosedSurfaceInternalRepresentation(addedSegmentIDs[num])
+    # Make sure surface mesh cells are consistently oriented
+    surfaceMesh = segmentationNode.GetClosedSurfaceInternalRepresentation(addedSegmentID)
     normals = vtk.vtkPolyDataNormals()
     normals.AutoOrientNormalsOn()
     normals.ConsistencyOn()
     normals.SetInputData(surfaceMesh)
     normals.Update()
     surfaceMesh = normals.GetOutput()
-    surfaceMeshes.append(surfaceMesh)
-
-# Write to OBJ file
-for num, surfaceMesh in enumerate(surfaceMeshes, 1):
-    filename = f"C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/OBJs/test{num}.obj"
+    # Write to STL file
+    filename = os.path.join(OUTPUT_PATH, "OBJs", f"Frame {str(num + 1).zfill(3)}.obj")
     writer = vtk.vtkOBJWriter()
     writer.SetInputData(surfaceMesh)
     writer.SetFileName(filename)
