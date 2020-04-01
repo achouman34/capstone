@@ -47,7 +47,7 @@ for num, volumeNode in enumerate(volumeNodes):
     normals.SetInputData(surfaceMesh)
     normals.Update()
     surfaceMesh = normals.GetOutput()
-    # Write to STL file
+    # Write to OBJ file
     filename = os.path.join(OUTPUT_PATH, "OBJs", f"Frame {str(num + 1).zfill(3)}.obj")
     writer = vtk.vtkOBJWriter()
     writer.SetInputData(surfaceMesh)
