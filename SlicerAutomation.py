@@ -2,8 +2,8 @@ import os
 import shutil
 INPUT_PATH = "C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/STD DEV"
 OUTPUT_PATH = "C:/Users/amath/OneDrive - The University of Western Ontario/4415 - Capstone/DTI Processing/DTI1/"
-MIN_THRES = str(175)
-MAX_THRES = str(255) 
+MIN_THRES = 175
+MAX_THRES = 255 
 
 volumeNodes = []
 for folder in os.listdir(INPUT_PATH):
@@ -31,8 +31,8 @@ for num, volumeNode in enumerate(volumeNodes):
     # Thresholding
     segmentEditorWidget.setActiveEffectByName("Threshold")
     effect = segmentEditorWidget.activeEffect()
-    effect.setParameter("MinimumThreshold", MIN_THRES)
-    effect.setParameter("MaximumThreshold", MAX_THRES)
+    effect.setParameter("MinimumThreshold", str(MIN_THRES))
+    effect.setParameter("MaximumThreshold", str(MAX_THRES))
     effect.self().onApply()
     # Clean up
     segmentEditorWidget = None
