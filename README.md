@@ -1,4 +1,6 @@
-# ECE 4415 Capstone Project
+# ECE 4415 Capstone Project - USING THREE-DIMENSIONAL MEDICAL IMAGING AND VIRTUAL REALITY TO AID IN EPILEPSY SURGERY AND INFORMED CONSENT
+
+## Collaborators
 Josh Bainbridge, Ali Chouman, Elliot Littlejohn, Akhil Nathoo
 
 ## Installation and Usage
