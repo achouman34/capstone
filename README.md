@@ -2,9 +2,9 @@
 Josh Bainbridge, Ali Chouman, Elliot Littlejohn, Akhil Nathoo
 
 ## Installation and Usage
-1. Ensure you have Slicer 4.11.0 installed at the default directory (i.e. C:\Users\...\AppData\Local\NA-MIC\Slicer 4.11.0-2020-04-01)
+1. Ensure you have Slicer 4.11.0 installed at the default directory (i.e. C:\Users\\...\AppData\Local\NA-MIC\Slicer 4.11.0-2020-04-01)
 2. Clone/download "Final Project" which contains the application "SlicerVR" (clone "S27" if you wish to test with sample scans)
-3. Run Slicer.exe
+3. Run SlicerVR.exe
 4. To view individual DICOM series images, click on "File->Open DICOM directory" and select the individual series folder.
 5. In "Tools->DICOM Settings", configure the necessary scan parameters before exporting (important to select the desired DICOM series).
 6. Click on "File->Export DICOM parent folder to BMP" and select the DICOM folder containing "DICOMDIR". It will search for the desired DICOM series and save in the folder "Split BMPs" in the executable directory.
