@@ -142,7 +142,3 @@ def standard_deviation(std_dev_across_n_frames):
                                  f"Slice {str(slice_number + 1).zfill(3)}.bmp"), output_images[slice_number])
 
     shutil.rmtree("Split BMPs")
-
-
-def slicer_automation():
-    pass
