@@ -8,6 +8,6 @@ Josh Bainbridge, Ali Chouman, Elliot Littlejohn, Akhil Nathoo
 4. To view individual DICOM series images, click on "File->Open DICOM directory" and select the individual series folder.
 5. In "Tools->DICOM Settings", configure the necessary scan parameters before exporting (important to select the desired DICOM series).
 6. Click on "File->Export DICOM parent folder to BMP" and select the DICOM folder containing "DICOMDIR". It will search for the desired DICOM series and save in the folder "Split BMPs" in the executable directory.
-7. Navigate to "Tools->Run STD Analysis" to perform a standard deviation analysis across frames (3 required, use sample folder "S27").
-8. Finally, "Tools->Prepare VR-Ready OBJs" will render the 3D model object files of the brain scans to viewed in VR.
+7. Navigate to "Tools->Run STD Analysis" to perform a standard deviation analysis across frames (3 required, use sample folder "S27") and save in the folder "STD DEV".
+8. Finally, "Tools->Prepare VR-Ready OBJs" will render the 3D model object files of the brain scans to viewed in VR (saved in "OBJs").
 9. "File->Launch SteamVR" will allow you to display the rendered objects provided you have connected a controller-compatible headset, such as Oculus Rift or HTC Vive, and a 3D model viewer application installed in your Steam library. Alternatively, the open-source ALVR (https://github.com/polygraphene/ALVR) was experimented with and can successfully emulate the Oculus headset with a Samsung Gear VR.
